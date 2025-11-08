@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: sans-serif;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 20px auto;
             padding: 20px;
             line-height: 1.6;
@@ -46,6 +46,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin: 5px;
         }
         button:hover {
             background-color: #45a049;
@@ -57,7 +58,7 @@
         }
         #settings {
             margin-bottom: 15px;
-            padding: 10px;
+            padding: 15px;
             background-color: #f9f9f9;
             border-radius: 5px;
         }
@@ -90,23 +91,99 @@
             background-color: #4CAF50;
             transition: width 0.3s ease;
         }
+        .filter-section {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 5px;
+        }
+        .filter-group {
+            display: inline-block;
+            margin-right: 20px;
+            vertical-align: top;
+        }
+        select, input[type="number"] {
+            padding: 5px;
+            margin: 5px;
+        }
+        .stats {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .category-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin: 2px;
+        }
     </style>
 </head>
 <body>
-    <h1>Тест по разработке программного обеспечения</h1>
+    <h1>📚 Тест по разработке программного обеспечения</h1>
 
     <div id="settings">
-        <label>Количество вопросов:
+        <h3>🎯 Настройки теста</h3>
+        
+        <div class="filter-section">
+            <div class="filter-group">
+                <strong>📊 Тесты:</strong><br>
+                <select id="competence-filter" multiple size="5">
+                    <option value="all" selected>Все Тесты </option>
+                    <option value="ПК 2.1">ПК 2.1 - Требования к модулям</option>
+                    <option value="ПК 2.2">ПК 2.2 - Интеграция модулей</option>
+                    <option value="ПК 2.3">ПК 2.3 - Отладка модулей</option>
+                    <option value="ПК 2.4">ПК 2.4 - Тестовые сценарии</option>
+                    <option value="ПК 2.5">ПК 2.5 - Инспектирование кода</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <strong>🎓 Типы вопросов:</strong><br>
+                <select id="type-filter" multiple size="4">
+                    <option value="all" selected>Все типы</option>
+                    <option value="multiple">Выбор ответа</option>
+                    <option value="fill">Заполнение пропусков</option>
+                    <option value="pairs">Установление соответствия</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <strong>📚 Дисциплины:</strong><br>
+                <select id="discipline-filter" multiple size="6">
+                    <option value="all" selected>Все дисциплины</option>
+                    <option value="ОПЦ.03">ОПЦ.03 Информационные технологии</option>
+                    <option value="МДК.02.01">МДК.02.01 Технология разработки ПО</option>
+                    <option value="МДК.02.02">МДК.02.02 Средства разработки ПО</option>
+                    <option value="ЕН.01">ЕН.01 Высшая математика</option>
+                    <option value="ЕН.02">ЕН.02 Дискретная математика</option>
+                    <option value="ЕН.03">ЕН.03 Теория вероятностей</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <strong>🔢 Количество вопросов:</strong>
             <select id="question-count">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="30">30</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
-                <option value="205">Все вопросы (205)</option>
+                <option value="all">Все вопросы</option>
             </select>
-        </label>
-        <button id="start-btn">Начать новый тест</button>
+
+            <button id="start-btn">🎮 Начать тест</button>
+            <button id="quick-test-btn" style="background: #ff9800;">⚡ Быстрый тест (10 случайных)</button>
+        </div>
+
+        <div class="stats" id="stats-info">
+            <!-- Статистика будет загружена здесь -->
+        </div>
     </div>
 
     <div id="quiz-container" style="display: none;">
@@ -116,13 +193,20 @@
                 <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
             </div>
         </div>
+        
+        <div id="test-info">
+            <h3>📝 Информация о тесте</h3>
+            <div id="test-stats"></div>
+        </div>
+
         <div id="questions"></div>
-        <button id="submit-btn">Завершить тест</button>
+        <button id="submit-btn">✅ Завершить тест</button>
+        <button id="back-btn" style="background: #6c757d;">⬅️ Назад к настройкам</button>
         <div id="result"></div>
     </div>
 
 <script>
-    // ПОЛНАЯ база данных вопросов и ответов (205 вопросов)
+    // База вопросов (сокращенная версия для примера)
     const questionBank = [
         // ПК 2.1 - ОПЦ.03 Информационные технологии (1-14)
         {
@@ -1919,7 +2003,7 @@
             question: "Генерация с прямой подстановкой ____— код формируется текстовыми строками, в которые программно вставляются необходимые элементы",
             answer: "текста"
         }
-    ]; // Конец массива questionBank
+    ];
 
     let currentQuestions = [];
     let userAnswers = {};
@@ -1927,17 +2011,134 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('start-btn').addEventListener('click', startNewQuiz);
+        document.getElementById('quick-test-btn').addEventListener('click', startQuickTest);
         document.getElementById('submit-btn').addEventListener('click', submitQuiz);
+        document.getElementById('back-btn').addEventListener('click', backToSettings);
         
-        // Показываем общее количество вопросов
-        const countSelect = document.getElementById('question-count');
-        const allOption = document.createElement('option');
-        allOption.value = questionBank.length;
-        allOption.textContent = `Все вопросы (${questionBank.length})`;
-        countSelect.appendChild(allOption);
-        
-        console.log(`Загружено вопросов: ${questionBank.length}`);
+        updateStats();
     });
+
+    function updateStats() {
+        const stats = calculateStats();
+        document.getElementById('stats-info').innerHTML = `
+            <strong>📈 Статистика базы вопросов:</strong><br>
+            Всего вопросов: <strong>${stats.total}</strong><br>
+            По тестам: ${stats.byCompetence.map(c => `<span class="category-badge">${c.name}: ${c.count}</span>`).join(' ')}<br>
+            По типам: ${stats.byType.map(t => `<span class="category-badge">${t.name}: ${t.count}</span>`).join(' ')}
+        `;
+    }
+
+    function calculateStats() {
+        const byCompetence = {};
+        const byType = {};
+        const byDiscipline = {};
+
+        questionBank.forEach(q => {
+            // Статистика по компетенциям
+            const compKey = q.competence.split(' ').slice(0, 2).join(' ');
+            byCompetence[compKey] = (byCompetence[compKey] || 0) + 1;
+            
+            // Статистика по типам
+            const typeName = getTypeName(q.type);
+            byType[typeName] = (byType[typeName] || 0) + 1;
+            
+            // Статистика по дисциплинам
+            byDiscipline[q.discipline] = (byDiscipline[q.discipline] || 0) + 1;
+        });
+
+        return {
+            total: questionBank.length,
+            byCompetence: Object.entries(byCompetence).map(([name, count]) => ({ name, count })),
+            byType: Object.entries(byType).map(([name, count]) => ({ name, count })),
+            byDiscipline: Object.entries(byDiscipline).map(([name, count]) => ({ name, count }))
+        };
+    }
+
+    function getTypeName(type) {
+        const types = {
+            'multiple': 'Выбор ответа',
+            'fill': 'Заполнение пропусков', 
+            'pairs': 'Установление соответствия'
+        };
+        return types[type] || type;
+    }
+
+    function getFilteredQuestions() {
+        const competenceFilter = Array.from(document.getElementById('competence-filter').selectedOptions).map(o => o.value);
+        const typeFilter = Array.from(document.getElementById('type-filter').selectedOptions).map(o => o.value);
+        const disciplineFilter = Array.from(document.getElementById('discipline-filter').selectedOptions).map(o => o.value);
+
+        let filtered = questionBank.filter(q => {
+            // Фильтр по компетенции
+            const compMatch = competenceFilter.includes('all') || 
+                competenceFilter.some(comp => q.competence.includes(comp));
+            
+            // Фильтр по типу
+            const typeMatch = typeFilter.includes('all') || typeFilter.includes(q.type);
+            
+            // Фильтр по дисциплине
+            const disciplineMatch = disciplineFilter.includes('all') || disciplineFilter.includes(q.discipline);
+            
+            return compMatch && typeMatch && disciplineMatch;
+        });
+
+        return filtered;
+    }
+
+    function startQuickTest() {
+        const filtered = getFilteredQuestions();
+        const questions = getRandomQuestions(filtered, 10);
+        startQuiz(questions);
+    }
+
+    function startNewQuiz() {
+        const filtered = getFilteredQuestions();
+        let count = parseInt(document.getElementById('question-count').value);
+        
+        if (isNaN(count) || count > filtered.length) {
+            count = filtered.length;
+        }
+        
+        const questions = getRandomQuestions(filtered, count);
+        startQuiz(questions);
+    }
+
+    function startQuiz(questions) {
+        if (questions.length === 0) {
+            alert('❌ Нет вопросов, соответствующих выбранным фильтрам!');
+            return;
+        }
+        
+        currentQuestions = questions;
+        userAnswers = {};
+        answeredCount = 0;
+
+        displayQuestions(currentQuestions);
+        document.getElementById('quiz-container').style.display = 'block';
+        document.getElementById('settings').style.display = 'none';
+        document.getElementById('result').innerHTML = '';
+        updateProgress();
+        
+        // Показываем статистику теста
+        const testStats = calculateTestStats(currentQuestions);
+        document.getElementById('test-stats').innerHTML = `
+            Всего вопросов: <strong>${currentQuestions.length}</strong><br>
+            Типы вопросов: ${testStats.types.map(t => `<span class="category-badge">${t}</span>`).join(' ')}<br>
+            Компетенции: ${testStats.competences.map(c => `<span class="category-badge">${c}</span>`).join(' ')}
+        `;
+    }
+
+    function calculateTestStats(questions) {
+        const types = [...new Set(questions.map(q => getTypeName(q.type)))];
+        const competences = [...new Set(questions.map(q => q.competence.split(' ').slice(0, 2).join(' ')))];
+        
+        return { types, competences };
+    }
+
+    function backToSettings() {
+        document.getElementById('quiz-container').style.display = 'none';
+        document.getElementById('settings').style.display = 'block';
+    }
 
     function updateProgress() {
         const total = currentQuestions.length;
@@ -1959,38 +2160,9 @@
         return shuffled.slice(0, count);
     }
 
-    function startNewQuiz() {
-        let count = parseInt(document.getElementById('question-count').value);
-        if (isNaN(count)) {
-            count = questionBank.length;
-        }
-        
-        if (questionBank.length === 0) {
-            alert('База вопросов пуста!');
-            return;
-        }
-        
-        currentQuestions = getRandomQuestions(questionBank, count);
-        userAnswers = {};
-        answeredCount = 0;
-
-        displayQuestions(currentQuestions);
-        document.getElementById('quiz-container').style.display = 'block';
-        document.getElementById('result').innerHTML = '';
-        updateProgress();
-        window.scrollTo(0, 0);
-        
-        console.log('Запущен тест с', currentQuestions.length, 'вопросами');
-    }
-
     function displayQuestions(questions) {
         const container = document.getElementById('questions');
         container.innerHTML = '';
-
-        if (questions.length === 0) {
-            container.innerHTML = '<p>Нет вопросов для отображения</p>';
-            return;
-        }
 
         questions.forEach((q, index) => {
             const questionDiv = document.createElement('div');
@@ -1998,7 +2170,12 @@
             
             const infoDiv = document.createElement('div');
             infoDiv.className = 'question-info';
-            infoDiv.innerHTML = `ID: ${q.id} | ${q.competence.split(' ')[0]} ${q.competence.split(' ')[1]} | ${q.discipline}`;
+            infoDiv.innerHTML = `
+                <span class="category-badge">${q.competence.split(' ').slice(0, 2).join(' ')}</span>
+                <span class="category-badge">${q.discipline}</span>
+                <span class="category-badge">${getTypeName(q.type)}</span>
+                ID: ${q.id}
+            `;
             questionDiv.appendChild(infoDiv);
             
             questionDiv.innerHTML += `<strong>Вопрос ${index + 1}:</strong> ${q.question}`;
@@ -2032,6 +2209,7 @@
             else if (q.type === "fill") {
                 const input = document.createElement('input');
                 input.type = 'text';
+                input.placeholder = "Введите ответ...";
                 input.addEventListener('input', (e) => {
                     userAnswers[index] = e.target.value.trim().toLowerCase();
                     answerHandler();
@@ -2057,6 +2235,7 @@
         });
     }
 
+    // Остальные функции (normalizeAnswer, isAnswerCorrect, submitQuiz) остаются без изменений
     function normalizeAnswer(answer) {
         return answer.toString().toLowerCase().replace(/\s+/g, ' ').trim();
     }
@@ -2088,10 +2267,10 @@
         }
 
         let score = 0;
-        let resultHTML = "<h3>Результаты теста:</h3><ol>";
+        let resultHTML = "<h3>📊 Результаты теста:</h3><ol>";
 
         currentQuestions.forEach((q, index) => {
-            const userAnswer = userAnswers[index] || "Нет ответа";
+            const userAnswer = userAnswers[index] || "❌ Нет ответа";
             let correctAnswer = q.answer;
             let isCorrect = isAnswerCorrect(userAnswer, correctAnswer, q.type);
 
@@ -2106,23 +2285,30 @@
             if (!isCorrect) {
                 resultHTML += `<div class="correct"><strong>Правильный ответ:</strong> ${correctAnswer}</div>`;
             }
-            resultHTML += `<div class="question-info"><small>ID: ${q.id} | ${q.discipline}</small></div>`;
+            resultHTML += `<div class="question-info"><small>${q.competence.split(' ').slice(0, 2).join(' ')} | ${q.discipline} | ${getTypeName(q.type)}</small></div>`;
             resultHTML += `</li>`;
         });
 
         const percentage = Math.round((score / currentQuestions.length) * 100);
         resultHTML += `</ol>`;
         resultHTML += `<h3 class="${percentage >= 80 ? 'correct' : 'incorrect'}">`;
-        resultHTML += `Правильных ответов: ${score} из ${currentQuestions.length} (${percentage}%)`;
+        resultHTML += `✅ Правильных ответов: ${score} из ${currentQuestions.length} (${percentage}%)`;
         resultHTML += `</h3>`;
         
-        // Оценка
-        let grade = "Неудовлетворительно";
-        if (percentage >= 90) grade = "Отлично";
-        else if (percentage >= 75) grade = "Хорошо";
-        else if (percentage >= 60) grade = "Удовлетворительно";
+        let grade = "❌ Неудовлетворительно";
+        let gradeColor = "red";
+        if (percentage >= 90) {
+            grade = "🎉 Отлично";
+            gradeColor = "green";
+        } else if (percentage >= 75) {
+            grade = "👍 Хорошо"; 
+            gradeColor = "blue";
+        } else if (percentage >= 60) {
+            grade = "✅ Удовлетворительно";
+            gradeColor = "orange";
+        }
         
-        resultHTML += `<h4>Оценка: ${grade}</h4>`;
+        resultHTML += `<h4 style="color: ${gradeColor}">Оценка: ${grade}</h4>`;
         
         document.getElementById('result').innerHTML = resultHTML;
         window.scrollTo(0, document.body.scrollHeight);
